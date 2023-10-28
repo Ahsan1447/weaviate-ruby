@@ -128,6 +128,29 @@ module Weaviate
       response.body
     end
 
+        # Update an individual data object based on its uuid.
+        def replace(
+          class_name:,
+          id:,
+          properties:,
+          vector: nil,
+          consistency_level: nil
+        )
+          validate_consistency_level!(consistency_level) unless consistency_level.nil?
+
+          response = client.connection.patch("#{PATH}/#{class_name}/#{id}") do |req|
+            req.params["consistency_level"] = consistency_level.to_s.upcase unless consistency_level.nil?
+
+            req.body = {}
+            req.body["id"] = id
+            req.body["class"] = class_name
+            req.body["properties"] = properties
+            req.body["vector"] = vector unless vector.nil?
+          end
+
+          response.body
+        end
+
     # Delete an individual data object from Weaviate.
     def delete(
       class_name:,
